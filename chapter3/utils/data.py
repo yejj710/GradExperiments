@@ -1,6 +1,7 @@
 import os
 import pickle
 import numpy as np
+from secretflow.utils.simulation.data.ndarray import create_ndarray
 
 
 def get_cifar10_data_and_label(type='train', root="/home/yejj/tmp/cifar-10-batches-py"):
@@ -37,13 +38,8 @@ def get_CIFAR10_dataset():
     return train_dataset, label_dataset, test_dataset, test_label_dataset
 
 
-def load_cifar_data():
+def load_cifar_data(parts):
     """Loads the CIFAR10 dataset.
-
-    This is a dataset of 50,000 32x32 color training images and 10,000 test
-    images, labeled over 10 categories. See more info at the
-    [CIFAR homepage](https://www.cs.toronto.edu/~kriz/cifar.html).
-    Example:
 
     ```python
     (x_train, y_train), (x_test, y_test) = keras.datasets.cifar10.load_data()
@@ -53,22 +49,46 @@ def load_cifar_data():
     assert y_test.shape == (10000, 1)
     ```
     """
+    from keras.datasets.cifar import load_batch
 
-    x_train, y_train, x_test, y_test = get_CIFAR10_dataset()
+    x_train = np.empty((50000, 3, 32, 32), dtype="uint8")
+    y_train = np.empty((50000,), dtype="uint8")
+    # x_train, y_train, x_test, y_test = get_CIFAR10_dataset()
+    path = "/home/yejj/tmp/cifar-10-batches-py"
+    for i in range(1, 6):
+        fpath = os.path.join(path, "data_batch_" + str(i))
+        (
+            x_train[(i - 1) * 10000 : i * 10000, :, :, :],
+            y_train[(i - 1) * 10000 : i * 10000],
+        ) = load_batch(fpath)
 
-    # y_train = np.reshape(y_train, (len(y_train), 1))
-    # y_test = np.reshape(y_test, (len(y_test), 1))
+    fpath = os.path.join(path, "test_batch")
+    x_test, y_test = load_batch(fpath)
+
     from sklearn.preprocessing import OneHotEncoder
 
     encoder = OneHotEncoder(sparse=False)
-    y_train = encoder.fit_transform(y_train.reshape(-1, 1))
-    y_test = encoder.fit_transform(y_test.reshape(-1, 1))
 
-    # if backend.image_data_format() == "channels_last":
-    #     x_train = x_train.transpose(0, 2, 3, 1)
-    #     x_test = x_test.transpose(0, 2, 3, 1)
 
-    x_test = x_test.astype(x_train.dtype)
-    y_test = y_test.astype(y_train.dtype)
+    y_train = np.reshape(y_train, (len(y_train), 1))
+    y_test = np.reshape(y_test, (len(y_test), 1))
 
-    return (x_train, y_train), (x_test, y_test)
+    y_train = encoder.fit_transform(y_train)
+    y_test = encoder.fit_transform(y_test)    
+
+    x_train = x_train.transpose(0, 2, 3, 1)
+    x_test = x_test.transpose(0, 2, 3, 1)
+
+    x_train, x_test = x_train / 255.0, x_test / 255.0
+    # x_test = x_test.astype(x_train.dtype)
+    # y_test = y_test.astype(y_train.dtype)
+    return (
+        (
+            create_ndarray(x_train, parts=parts, axis=0, is_torch=False),
+            create_ndarray(y_train, parts=parts, axis=0),
+        ),
+        (
+            create_ndarray(x_test, parts=parts, axis=0, is_torch=False),
+            create_ndarray(y_test, parts=parts, axis=0),
+        ),
+    )
