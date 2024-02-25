@@ -9,9 +9,18 @@ from utils.data import load_cifar_data
 
 
 if __name__ == "__main__":
+    sf.shutdown()
+
+    nodes = [f"party{i}" for i in range(10)]
+
+    sf.init(nodes, address="local")  # init nodes
     
-    (x_train, y_train), (x_test, y_test) = load_cifar_data()
-    x_train, x_test = x_train / 255.0, x_test / 255.0
+    devices = {}    # init PYU device
+    for i in range(10):
+        devices[i] = sf.PYU(f"party{i}")
+
+    (x_train, y_train), (x_test, y_test) = load_cifar_data([devices[i] for i in range(10)])
+    
 
     # input_shape = (32, 32, 3)
     # model = create_model(input_shape=input_shape, num_classes=10, name='lenet', dataset='cifar')
