@@ -2,10 +2,10 @@ import sys
 import secretflow as sf
 sys.path.append("/home/yejj/GradExperiments/chapter3")
 from utils.model import create_model
+from utils.data import load_cifar_data
 from secretflow.ml.nn import FLModel
 from secretflow.ml.nn.callbacks.early_stopping import EarlyStoppingEpoch
 import numpy as np
-from sklearn.preprocessing import OneHotEncoder
 # from copy_ndarray import create_ndarray
 from secretflow.device import reveal
 from secretflow.utils.simulation.datasets import load_mnist
@@ -46,8 +46,8 @@ def _init_aggreator(type, **kwargs):
 
 def _train_steps(type, devices, server, x_train, y_train, x_test, y_test, epochs=10, callback=None):
     # num_classes = 10
-    input_shape = (28, 28, 1)
-    model = create_model(input_shape, 10, "lenet")
+    input_shape = (32, 32, 3)
+    model = create_model(input_shape, 10, "lenet", "cifar")
 
     aggregator = _init_aggreator(type=type, agg_server=server, devices=devices)
 
@@ -87,7 +87,7 @@ def _train_steps(type, devices, server, x_train, y_train, x_test, y_test, epochs
     # print(dump_result)
     save_directory = os.getcwd()
 
-    file_path = os.path.join(save_directory, f'../evaluate_metrics/{type}_225.pkl')
+    file_path = os.path.join(save_directory, f'../evaluate_metrics/cifar_{type}_225.pkl')
 
     with open(file_path, 'wb') as file:
         pickle.dump(dump_result, file)
@@ -108,10 +108,11 @@ if __name__ == "__main__":
     agg_server = sf.PYU("server")
 
     # 2. load data & global config
-    (x_train, y_train), (x_test, y_test) = load_mnist(parts=[devices[i] for i in range(10)], normalized_x=True, categorical_y=True)
+    # (x_train, y_train), (x_test, y_test) = load_mnist(parts=[devices[i] for i in range(10)], normalized_x=True, categorical_y=True)
+    (x_train, y_train), (x_test, y_test) = load_cifar_data([devices[i] for i in range(10)])
 
     earlystop_callback = EarlyStoppingEpoch(
-		monitor='val_loss', min_delta=0.005, mode='min',
+		monitor='val_loss', min_delta=0.01, mode='min',
         patience=1)
 
     # 3. train and evaluate model steps
