@@ -2,7 +2,7 @@ import sys
 
 import secretflow as sf
 
-sys.path.append("/home/yejj/GradExperiments/chapter3_exp1")
+sys.path.append("/home/yejj/GradExperiments/chapter3")
 from utils.model import create_model
 
 from secretflow.ml.nn import FLModel
