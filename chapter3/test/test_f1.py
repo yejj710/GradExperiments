@@ -1,12 +1,12 @@
 import sys
 import secretflow as sf
-sys.path.append("/home/yejj/GradExperiments/chapter3_exp1")
+sys.path.append("/home/yejj/GradExperiments/chapter3")
 from utils.model import create_model
 from secretflow.ml.nn import FLModel
 from secretflow.security.aggregation import PlainAggregator
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder
-from copy_ndarray import create_ndarray
+from test.copy_ndarray import create_ndarray
 from secretflow.device import reveal
 
 
