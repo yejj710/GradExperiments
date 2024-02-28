@@ -1,0 +1,14 @@
+{
+	"model_name" : "resnet34",
+	"clients_num" : 5,
+	"type" : "cifar-10",
+	"global_epochs" : 5,
+	"local_epochs" : 2,
+    "k" : "选取训练的客户端数量",
+	"k" : 3,    
+	"batch_size" : 128,
+    "notes" : "本地训练的超参数设置",
+	"lr" : 0.001,
+	"momentum" : 0.0001,
+	"lambda" : 0.1
+}
