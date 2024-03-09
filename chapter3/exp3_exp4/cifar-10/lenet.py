@@ -112,12 +112,12 @@ if __name__ == "__main__":
     (x_train, y_train), (x_test, y_test) = load_cifar_data([devices[i] for i in range(10)])
 
     earlystop_callback = EarlyStoppingEpoch(
-		monitor='val_loss', min_delta=0.01, mode='min',
-        patience=1)
+		monitor='val_loss', min_delta=0.005, mode='min',
+        patience=10)
 
     # 3. train and evaluate model steps
     # ['plain', 'ldp', 'phe', 'ss']
-    for agg_type in ['ss']:
+    for agg_type in ['plain', 'ldp', 'phe', 'ss']:
         _train_steps(type=agg_type,
                      devices=devices,
                      server=agg_server,
