@@ -122,7 +122,7 @@ def transform_libsvm(inputfile, max_feature):
     file.close()
 
 
-def _load_epsilon():
+def _read_epsilon():
 
     test_path = "/home/yejj/GradExperiments/chapter4/tee_lr/epsilon/epsilon_normalized.t"
     train_path = "/home/yejj/GradExperiments/chapter4/tee_lr/epsilon/epsilon_normalized"
@@ -148,17 +148,29 @@ def _load_epsilon():
     np.save('./epsilon/y_train.npy', y_train)
 
 
+def load_epsilon():
+    x_train = np.load("./epsilon/x_train.npy")
+    x_test = np.load("./epsilon/x_test.npy")
+    y_train = np.load("./epsilon/y_train.npy")
+    y_test = np.load("./epsilon/y_test.npy")
+    return x_train, y_train, x_test, y_test 
+
 if __name__ == "__main__":
     # from func import generate_unique_random_numbers
     # need_col = generate_unique_random_numbers(500)
     # np.save("./epsilon/col.npy", np.array(need_col))
 
-    _load_epsilon()
-    # X = np.load("x_test.npy")
-    # print(X, type(X))
+    # _load_epsilon()
+    x_train = np.load("./epsilon/x_train.npy")
+    x_test = np.load("./epsilon/x_test.npy")
+    print(x_train.shape, x_test.shape)
+    print(x_train[0])
 
-    # num_nan = np.sum(np.isnan(X))
-    # num_zeros = np.sum(X == 0)
+    # num_nan = np.sum(np.isnan(x_train))
+    # num_nan += np.sum(np.isnan(x_test))
+
+    # num_zeros = np.sum(x_train  == 0)
+    # num_zeros += np.sum(x_test  == 0)
     # print(num_nan, num_zeros)
     # print(X.shape)
 
@@ -167,8 +179,8 @@ if __name__ == "__main__":
     # data = np.array([[ 0,  1,  2,  3, 6],
     #              [ 4,  5,  6,  7, 6],
     #              [ 8,  9, 10, 11, 6],
-    #              [12, 13, 14, 15, 6]])
+    #              [12, 13, 14, 0, 6]])
     # print(data, data.shape)
-
+    # num_nan = np.sum(np.isnan(data))
     # data = data[:,[0,3]]
     # print(data, data.shape)
