@@ -7,12 +7,12 @@ import numpy as np
 import csv
 
 
-def _load_breast_cancer():
+def _load_breast_cancer(random_state=42):
     X, y = load_breast_cancer(return_X_y=True)
     # 归一化
     mm = MinMaxScaler()
     X = mm.fit_transform(X)
-    x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+    x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=random_state)
     return x_train, y_train, x_test, y_test
 
 
