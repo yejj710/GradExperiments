@@ -83,13 +83,19 @@ def train_step(W, b, x1, x2, y, learning_rate, batch_num):
     return W, b
 
 
-def fit(W, b, x1, x2, y, epochs=1, learning_rate=0.01, batch_num=10):
+
+def fit(W, b, x1, x2, y, x_test, y_test, epochs=1, learning_rate=0.01, batch_num=10):
+    loss_history = list()
+    x = jnp.concatenate([x1, x2], axis=1)
     for _ in range(epochs):
+
         W, b = train_step(W, b, x1, x2, y, learning_rate=learning_rate, batch_num=batch_num)
             # W, b = train_step(W, b, batch_x1, batch_x2, batch_y, learning_rate=learning_rate)
-        # TODO monitor loss
+        pred = predict(W, b, x)
+        loss = jnp.log(pred) * y+ jnp.log(1 - pred) * (1 - y)
+        loss_history.append(-jnp.mean(loss))
 
-    return W, b
+    return W, b, loss_history
 
 
 def validate_model(W, b, X_test, y_test):
@@ -107,18 +113,18 @@ if __name__ == "__main__":
     alice, bob = sf.PYU('alice'), sf.PYU('bob')
     spu = sf.SPU(sf.utils.testing.cluster_def(['alice', 'bob']))
 
-    # x1, y = alice(breast_cancer)(party_id=1)
-    # x2, _ = bob(breast_cancer)(party_id=2)
+    x1, y = alice(breast_cancer)(party_id=1)
+    x2, _ = bob(breast_cancer)(party_id=2)
 
-    # X_test, y_test = breast_cancer(train=False)
-    x1, y = alice(_epsilon)(party_id=1)
-    x2, _ = bob(_epsilon)(party_id=2)
+    X_test, y_test = breast_cancer(train=False)
+    # x1, y = alice(_epsilon)(party_id=1)
+    # x2, _ = bob(_epsilon)(party_id=2)
 
-    X_test, y_test = _epsilon(train=False) 
+    # X_test, y_test = _epsilon(train=False) 
     # print(y_test[:10], type(y_test))
     # x1, x2, y
-    # W = jnp.zeros((30,))
-    W = jnp.zeros((500,))
+    W = jnp.zeros((30,))
+    # W = jnp.zeros((500,))
     b = 0.0
 
     W_, b_, x1_, x2_, y_ = (
@@ -129,14 +135,15 @@ if __name__ == "__main__":
         y.to(spu),
     )
     start_time = time.time()
-    W_, b_ = spu(
+    W_, b_, loss_history = spu(
         fit,
         static_argnames=['epochs', 'learning_rate', 'batch_num'],
         num_returns_policy=sf.device.SPUCompilerNumReturnsPolicy.FROM_USER,
-        user_specified_num_returns=2,
-    )(W_, b_, x1_, x2_, y_, epochs=5, learning_rate=0.01, batch_num=1)
+        user_specified_num_returns=3,
+    )(W_, b_, x1_, x2_, y_, X_test, y_test, epochs=5, learning_rate=0.05, batch_num=1)
 
     auc, f1 = validate_model(sf.reveal(W_), sf.reveal(b_), X_test, y_test)
     print(f"train time :{time.time()-start_time}")
 
     print(f'auc={auc}, f1={f1}')
+    print(sf.reveal(loss_history))
