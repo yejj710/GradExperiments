@@ -2,8 +2,10 @@ from jax import grad
 import jax.numpy as jnp
 import secretflow as sf
 import time
+import sys
 import jax
-from ..utils.data_loader import _load_breast_cancer
+# sys.path.append("/home/yejj/GradExperiments/chapter4/tee_lr")
+# from utils.data_loader import _load_breast_cancer
 import numpy as np
 from sklearn.metrics import roc_auc_score, f1_score
 
@@ -14,6 +16,8 @@ def breast_cancer(party_id=None, train: bool = True) -> (np.ndarray, np.ndarray)
     # x_train, x_test, y_train, y_test = train_test_split(
     #     x, y, test_size=0.2, random_state=42
     # )
+    sys.path.append("/home/yejj/GradExperiments/chapter4/tee_lr")
+    from utils.data_loader import _load_breast_cancer
     x_train, y_train, x_test, y_test = _load_breast_cancer(315)
     if train:
         if party_id:
@@ -140,7 +144,7 @@ if __name__ == "__main__":
         static_argnames=['epochs', 'learning_rate', 'batch_num'],
         num_returns_policy=sf.device.SPUCompilerNumReturnsPolicy.FROM_USER,
         user_specified_num_returns=3,
-    )(W_, b_, x1_, x2_, y_, X_test, y_test, epochs=5, learning_rate=0.01, batch_num=1)
+    )(W_, b_, x1_, x2_, y_, X_test, y_test, epochs=2, learning_rate=0.01, batch_num=8)
 
     auc, f1 = validate_model(sf.reveal(W_), sf.reveal(b_), X_test, y_test)
     print(f"train time :{time.time()-start_time}")
