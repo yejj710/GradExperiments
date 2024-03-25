@@ -149,11 +149,15 @@ def _read_epsilon():
 
 
 def load_epsilon():
-    x_train = np.load("./epsilon/x_train.npy")
-    x_test = np.load("./epsilon/x_test.npy")
-    y_train = np.load("./epsilon/y_train.npy")
-    y_test = np.load("./epsilon/y_test.npy")
-    return x_train, y_train, x_test, y_test 
+    x_train = np.load("../epsilon/x_train.npy")
+    x_test = np.load("../epsilon/x_test.npy")
+    y_train = np.load("../epsilon/y_train.npy")
+    y_test = np.load("../epsilon/y_test.npy")
+
+    y_train = list(map(lambda x: 0 if x == -1 else 1, y_train))
+    y_test = list(map(lambda x: 0 if x == -1 else 1, y_test))
+
+    return x_train,  np.array(y_train), x_test,  np.array(y_test)
 
 
 if __name__ == "__main__":
