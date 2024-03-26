@@ -90,10 +90,10 @@ def _read_a9a():
 
 
 def load_a9a():
-    x_train = np.load("./a9a_data/x_train.npy")
-    x_test = np.load("./a9a_data/x_test.npy")
-    y_train = np.load("./a9a_data/y_train.npy")
-    y_test = np.load("./a9a_data/y_test.npy")
+    x_train = np.load("../a9a_data/x_train.npy")
+    x_test = np.load("../a9a_data/x_test.npy")
+    y_train = np.load("../a9a_data/y_train.npy")
+    y_test = np.load("../a9a_data/y_test.npy")
     return x_train, y_train, x_test, y_test 
 
 
@@ -109,8 +109,7 @@ def load_weather_aus(first_load=True):
         # print(category_features)
         # 离散变量编码
         def get_mapfunction(x):
-            mapp = dict(zip(x.unique().tolist(),
-                range(len(x.unique().tolist()))))
+            mapp = dict(zip(x.unique().tolist(), range(len(x.unique().tolist()))))
             def mapfunction(y):
                 if y in mapp:
                     return mapp[y]
@@ -136,11 +135,12 @@ def load_weather_aus(first_load=True):
             pickle.dump((x_train, x_test, y_train, y_test), file)
     else:
         save_directory = os.getcwd()
-        file_path = os.path.join(save_directory, f'./weather_aus.pkl')
+        file_path = os.path.join(save_directory, f'../weather_aus.pkl')
         with open(file_path, 'rb') as file:
            tmp = pickle.load(file)
            x_train, x_test, y_train, y_test = tmp[0], tmp[1], tmp[2], tmp[3]
     return x_train, x_test, y_train, y_test
+
 
 if __name__ == "__main__":
     # data = pd.read_csv('weatherAUS.csv')
